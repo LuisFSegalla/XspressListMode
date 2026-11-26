@@ -1,0 +1,17 @@
+[package]
+name = "xspress_list_mode"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name="frames"
+path="src/frames.rs"
+
+[[bin]]
+name="tcp_listener"
+path="src/tcp_listener.rs"
+
+[dependencies]
+clap = {version="4.6.10", features = ["derive"]}
+hdf5 = "0.8.1"
+log = "0.4.35"
