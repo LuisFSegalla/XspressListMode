@@ -3,7 +3,7 @@ use std::{
 };
 use clap::Parser;
 
-const TCP_FRAME_SIZE: usize = 4096;
+const TCP_FRAME_SIZE: usize = 8192;
 
 
 #[derive(Parser, Debug)]
@@ -16,6 +16,15 @@ struct Args {
     /// Port to connect to
     #[arg(short, long,default_value_t=":15510".to_owned())]
     port: String,
+
+    /// Path to write received bytes
+    #[arg(long,default_value_t="/tmp".to_owned())]
+    path: String,
+
+    /// Path to write received bytes
+    #[arg(short, long,default_value_t="values.txt".to_owned())]
+    filename: String,
+
 }
 
 
@@ -54,7 +63,7 @@ fn read_into_buffer(
     return Ok(());
 }
 
-fn listen_to_stream(addr: String) -> Result<(), Box<dyn Error>> {
+fn listen_to_stream(addr: String, path: String) -> Result<(), Box<dyn Error>> {
     let listener = match TcpListener::bind(&addr) {
         Ok(listener) => {
             println!("Connected to {addr}");
@@ -66,7 +75,7 @@ fn listen_to_stream(addr: String) -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let mut file: File = match File::create("/workspaces/data/test_write.txt") {
+    let mut file: File = match File::create(path) {
         Ok(file) => {
             println!("Opened the file!");
             file
@@ -100,7 +109,6 @@ fn listen_to_stream(addr: String) -> Result<(), Box<dyn Error>> {
         }
         if f_lenght >= 100 * TCP_FRAME_SIZE {
             println!("Closing the file and returning");
-            drop(file);
             break;
         }
         
@@ -121,6 +129,6 @@ fn listen_to_stream(addr: String) -> Result<(), Box<dyn Error>> {
 
 fn main() {
     let args: Args = Args::parse();
-    let _ = listen_to_stream(args.addr + ":" + &args.port);
+    let _ = listen_to_stream(args.addr + ":" + &args.port, args.path + "/" + &args.filename);
     println!("Hello world!");
 }
